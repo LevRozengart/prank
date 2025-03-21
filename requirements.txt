@@ -2,3 +2,5 @@ uvicorn
 fastapi
 pyttsx3
 requests
+opencv-python
+python-multipart

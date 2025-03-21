@@ -1,5 +1,6 @@
-from fastapi import FastAPI
-
+from fastapi import FastAPI, File, UploadFile
+from pathlib import Path
+import shutil
 
 app = FastAPI()
 
@@ -20,3 +21,16 @@ def get_message():
         pass
     return {"message": s}
 
+
+UPLOAD_DIR = Path("uploads")  # Папка для сохранения файлов
+UPLOAD_DIR.mkdir(exist_ok=True)  # Создаём её, если нет
+
+
+@app.post("/upload/")
+async def upload_file(file: UploadFile = File(...)):
+    file_path = UPLOAD_DIR / file.filename  # Путь сохранения
+
+    with file_path.open("wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)  # Копируем файл в указанное место
+
+    return {"filename": file.filename, "saved_path": str(file_path)}
