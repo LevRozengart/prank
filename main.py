@@ -23,16 +23,18 @@ def get_message():
     return {"message": s}
 
 
-UPLOAD_DIR = Path("uploads")  # Папка для сохранения файлов
-UPLOAD_DIR.mkdir(exist_ok=True)  # Создаём её, если нет
-
+UPLOAD_DIR = Path("uploads")
+UPLOAD_DIR.mkdir(exist_ok=True)
 
 @app.post("/upload/")
 async def upload_file(file: UploadFile = File(...)):
-    file_path = UPLOAD_DIR / file.filename  # Путь сохранения
+    file_path = UPLOAD_DIR / file.filename  # Определяем путь файла
+
+    if file_path.exists():
+        file_path.unlink()  # Удаляем старый файл, если он уже есть
 
     with file_path.open("wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)  # Копируем файл в указанное место
+        shutil.copyfileobj(file.file, buffer)
 
     return {"filename": file.filename, "saved_path": str(file_path)}
 
