@@ -1,6 +1,7 @@
 from fastapi import FastAPI, File, UploadFile
 from pathlib import Path
 import shutil
+from fastapi.responses import FileResponse
 
 app = FastAPI()
 
@@ -34,3 +35,13 @@ async def upload_file(file: UploadFile = File(...)):
         shutil.copyfileobj(file.file, buffer)  # Копируем файл в указанное место
 
     return {"filename": file.filename, "saved_path": str(file_path)}
+
+
+UPLOAD_DIR = Path("uploads")  # Папка с загруженными файлами
+
+@app.get("/get_image/{filename}", response_class=FileResponse)
+async def get_image(filename: str):
+    file_path = UPLOAD_DIR / filename
+    if not file_path.exists():
+        return {"error": "Файл не найден"}
+    return FileResponse(file_path, media_type="image/png")  # Укажи нужный формат
